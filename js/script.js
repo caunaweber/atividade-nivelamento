@@ -1,10 +1,6 @@
-
 const form = document.getElementById("loginForm");
 
-const USER_EMAIL = "admin@site.com";
-const USER_PASSWORD = "123";
-
-form.addEventListener("submit", function (event) {
+form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const email = document.getElementById("email").value.trim();
@@ -20,10 +16,24 @@ form.addEventListener("submit", function (event) {
         return;
     }
 
-    if (email === USER_EMAIL && password === USER_PASSWORD) {
-        window.location.href = "fake-news.html";
-    } else {
-        errorMessage.textContent = "E-mail ou senha inválidos.";
+    try {
+        const response = await fetch("data/users.json");
+        const data = await response.json();
+
+        const userFound = data.users.find(
+            user => user.email === email && user.password === password
+        );
+
+        if (userFound) {
+            window.location.href = "fake-news.html";
+        } else {
+            errorMessage.textContent = "E-mail ou senha inválidos.";
+            errorMessage.classList.remove("d-none");
+        }
+
+    } catch (error) {
+        errorMessage.textContent = "Erro ao validar login.";
         errorMessage.classList.remove("d-none");
+        console.error(error);
     }
 });
